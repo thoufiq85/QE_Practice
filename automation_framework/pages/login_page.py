@@ -1,4 +1,6 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class LoginPage:
@@ -23,5 +25,8 @@ class LoginPage:
     def submit(self):
         self.driver.find_element(*self.login_button).click()
 
-    def get_error_text(self) -> str:
-        return self.driver.find_element(*self.error_message).text
+def get_error_text(self) -> str:
+    error_element = WebDriverWait(self.driver, 10).until(
+        EC.visibility_of_element_located(self.error_message)
+    )
+    return error_element.text
