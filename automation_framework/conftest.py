@@ -37,11 +37,27 @@ def browser(config):
         options.add_argument("--disable-backgrounding-occluded-windows")
         options.add_argument("--disable-renderer-backgrounding")
 
+    # Common Chrome options for stability
     options.add_argument("--window-size=1920,1080")
-    driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
-    driver.implicitly_wait(config.get("implicit_wait", 10))
-    yield driver
-    driver.quit()
+    options.add_argument("--disable-web-security")
+    options.add_argument("--disable-features=VizDisplayCompositor")
+
+    try:
+        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+        driver.implicitly_wait(config.get("implicit_wait", 10))
+        yield driver
+    except Exception as e:
+        print(f"Failed to create Chrome driver: {e}")
+        # Try with basic options if advanced options fail
+        options = ChromeOptions()
+        if is_headless:
+            options.add_argument("--headless")
+        options.add_argument("--window-size=1920,1080")
+        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+        driver.implicitly_wait(config.get("implicit_wait", 10))
+        yield driver
+    finally:
+        driver.quit()
 
 
 @pytest.fixture(scope="function")

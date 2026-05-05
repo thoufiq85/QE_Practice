@@ -1,5 +1,5 @@
 base_url: https://practicetestautomation.com/practice-test-login/
 browser: chrome
-implicit_wait: 10
+implicit_wait: 15
 headless: false
 report_dir: reports
