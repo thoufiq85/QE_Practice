@@ -21,9 +21,22 @@ def config():
 @pytest.fixture(scope="function")
 def browser(config):
     options = ChromeOptions()
-    if config.get("headless", False):
+
+    # Force headless mode in CI environments
+    is_ci = os.getenv("CI", "false").lower() == "true"
+    is_headless = config.get("headless", False) or is_ci
+
+    if is_headless:
         options.add_argument("--headless=new")
         options.add_argument("--disable-gpu")
+        # Additional arguments for CI environments
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--disable-background-timer-throttling")
+        options.add_argument("--disable-backgrounding-occluded-windows")
+        options.add_argument("--disable-renderer-backgrounding")
+
     options.add_argument("--window-size=1920,1080")
     driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
     driver.implicitly_wait(config.get("implicit_wait", 10))
